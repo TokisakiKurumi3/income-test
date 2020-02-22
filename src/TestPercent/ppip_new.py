@@ -18,12 +18,14 @@ def invest_one_game(game, money):  # game = [timeStamp(调整后时间戳), day,
     # wangduzi = money * 0.04
     # # 3.分周中周末
     timeArray = time.localtime(game[0])
-    if timeArray.tm_wday > 4:
-        # wangduzi = money * 0.04
-        wanduzi = 75
+
+    if timeArray.tm_wday == 6:  # 周六
+        wanduzi = 100
     else:
-        # wanduzi = money * 0.07
-        wanduzi = 125
+        if timeArray.tm_wday >= 4:
+            wanduzi = 100
+        else:
+            wanduzi = 100
 
     return wanduzi
 
@@ -64,19 +66,36 @@ def drawK(k_dict):
     plt.show()
     print("Done.")
 
+def filter_one_day(riqi, cur_money):
+
+    timeArray = time.strptime(riqi, "%Y-%m-%d")
+    # 星期(0 ~ 6)
+    if timeArray.tm_wday == 5:
+        return False,0
+    else:
+        if timeArray.tm_wday >= 4:
+            return True,100
+        else:
+            return True,100
 
 def income_count(data_dict, out_dir):
 
     money = INIT_MONEY
     k_dict = dict()
+    cur_money = INIT_MONEY
 
     for key in data_dict.keys():
         nian_yue_dict = data_dict[key]
         for k in nian_yue_dict.keys():
             day_dict = nian_yue_dict[k]
+
+            # 筛选
+            # tou_bu_tou, tou_duo_shao = filter_one_day(k, cur_money)
+
             money, cur_money_list = invest_one_day(day_dict, money)
             k_dict[k] = cur_money_list
-            print("{} : {:.2f} 元".format(k, money))
+            cur_money = cur_money_list[-1]
+            print("{}\t{:.2f}".format(k, money))
 
     # 画k线图
-    drawK(k_dict)
+    # drawK(k_dict)
